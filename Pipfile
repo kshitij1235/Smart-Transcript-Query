@@ -10,6 +10,12 @@ httpx = "*"
 youtube-transcript-api = "*"
 redis = "*"
 python-dotenv = "*"
+chromadb = "*"
+sentence-transformers = "*"
+transformers = "*"
+textwrap3 = "*"
+nltk = "*"
+tqdm = "*"
 
 [dev-packages]
 

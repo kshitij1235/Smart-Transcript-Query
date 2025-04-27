@@ -27,7 +27,8 @@ def get_youtube_transcript(video_url):
         transcript_data = []
         
         for entry in transcript:
-            transcript_data.append({"timestamps": format_timestamp(entry['start']), "line": entry["text"]})
+            if entry['text'] !='':
+                transcript_data.append({"s": format_timestamp(entry['start']).rstrip('0').rstrip(':'), "t": entry["text"]})
         
         return transcript_data
     
