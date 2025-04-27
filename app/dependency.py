@@ -1,4 +1,4 @@
-import chromadb
+from app.database import chroma_client
 from transformers import pipeline
 import torch
 import uuid  # for generating unique IDs
@@ -10,7 +10,7 @@ class Summarizer_log:
         collection: an existing chromadb collection
         """
         self.text = text
-        self.client = chromadb.Client()
+        self.client = chroma_client
         self.collection = collection
 
         # Load the summarization pipeline
@@ -57,18 +57,28 @@ class Summarizer_log:
         print(f"Total combined blocks: {len(combined_blocks)}")
 
         # Summarize each block and store the summary with the *first timestamp*
+        documents_to_add = []
+        metadatas_to_add = []
+        ids_to_add = []
+
         for i, (block, timestamps) in enumerate(combined_blocks):
             summary = self.summarize_chunk(block)
             if summary:
                 first_timestamp = timestamps[0] if timestamps else f"chunk-{i}"
                 doc_id = str(uuid.uuid4())
-                self.collection.add(
-                    documents=[summary],
-                    metadatas=[{"timestamp": first_timestamp, "type": "summary"}],
-                    ids=[doc_id]
-                )
+                documents_to_add.append(summary)
+                metadatas_to_add.append({"timestamp": first_timestamp, "type": "summary"})
+                ids_to_add.append(doc_id)
                 print(f"[✔] Stored summary at {first_timestamp}")
             else:
                 print(f"[✘] Skipped block {i+1}")
+
+        # Batch insert into ChromaDB
+        if documents_to_add:
+            self.collection.add(
+                documents=documents_to_add,
+                metadatas=metadatas_to_add,
+                ids=ids_to_add
+            )
 
         return "Summarization and storage complete."

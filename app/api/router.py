@@ -72,19 +72,12 @@ async def get_transcript_data(video_url: str, query: str = None):
 @router.get("/list_collections")
 async def list_collections():
     """
-    List all collections in the ChromaDB.
+    List all collections in the in-memory ChromaDB.
     """
     collections = chroma_client.list_collections()
-    # Safely serialize each collection
-    serialized_collections = []
-    for col in collections:
-        serialized_collections.append({
-            "name": col.name,
-            "id": col.id,
-            "metadata": col.metadata,  # Or whatever properties you want
-        })
-    
+    collection_names = [collection.name for collection in collections]
+
     return {
         "status": "success",
-        "data": serialized_collections
+        "data": collection_names
     }
